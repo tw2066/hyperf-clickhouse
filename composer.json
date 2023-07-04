@@ -1,5 +1,5 @@
 {
-    "name": "xtwoend/hyperf-clickhouse",
+    "name": "tangwei/hyperf-clickhouse",
     "description": "Clickhouse db for hyperf",
     "type": "library",
     "license": "MIT",
