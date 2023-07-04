@@ -10,12 +10,12 @@
     },
     "authors": [
         {
-            "name": "Abdul Hafidz A",
-            "email": "aditans88@gmail.com"
+            "name": "tw2066",
+            "email": "tw2066@163.com"
         }
     ],
     "require": {
-        "the-tinderbox/clickhouse-builder": "^5.3"
+        "the-tinderbox/clickhouse-builder": "^6.1"
     },
     "config": {
         "sort-packages": true
