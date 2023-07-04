@@ -17,7 +17,6 @@
     "require": {
         "the-tinderbox/clickhouse-builder": "^6.1"
     },
-    "minimum-stability": "stable",
     "config": {
         "optimize-autoloader": true,
         "sort-packages": true
