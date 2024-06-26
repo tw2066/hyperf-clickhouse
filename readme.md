@@ -1,7 +1,7 @@
 # phpClickHouse-hyperf
 Adapter to Hyperf framework of the most popular libraries:
 
-- https://github.com/the-tinderbox/ClickhouseBuilder - good query builder
+- https://github.com/tw2066/ClickhouseBuilder - good query builder
 
 ## Features
 No dependency
@@ -9,7 +9,7 @@ No dependency
 More: https://github.com/smi2/phpClickHouse#features
 
 ## Prerequisites
-- PHP 7.1
+- PHP 8.1
 - Hyperf PHP
 - Clickhouse server
 
@@ -18,27 +18,33 @@ More: https://github.com/smi2/phpClickHouse#features
 1. Install via composer
 
 ```sh
-$ composer require xtwoend/hyperf-clickhouse
+$ composer require tangwei/hyperf-clickhouse
 ```
 
 2. Add new connection into your config/database.php:
 
 ```php
-'clickhouse' => [
-    'driver' => 'clickhouse',
-    'host' => env('CLICKHOUSE_HOST'),
-    'port' => env('CLICKHOUSE_PORT','8123'),
-    'database' => env('CLICKHOUSE_DATABASE','default'),
-    'username' => env('CLICKHOUSE_USERNAME','default'),
-    'password' => env('CLICKHOUSE_PASSWORD',''),
-    'timeout_connect' => env('CLICKHOUSE_TIMEOUT_CONNECT',2),
-    'timeout_query' => env('CLICKHOUSE_TIMEOUT_QUERY',2),
-    'https' => (bool)env('CLICKHOUSE_HTTPS', null),
-    'retries' => env('CLICKHOUSE_RETRIES', 0),
-    'settings' => [ // optional
-        'max_partitions_per_insert_block' => 300,
+    'clickhouse' => [
+        'driver' => 'clickhouse',
+        'host' => env('CLICKHOUSE_HOST'),
+        'port' => env('CLICKHOUSE_PORT','8123'),
+        'database' => env('CLICKHOUSE_DATABASE','default'),
+        'username' => env('CLICKHOUSE_USERNAME','default'),
+        'password' => env('CLICKHOUSE_PASSWORD',''),
+        'https' => (bool)env('CLICKHOUSE_HTTPS',false),
+        'settings' => [ // optional
+            // 'max_partitions_per_insert_block' => 300,
+        ],
+        'pool' => [
+            'min_connections' => 1,
+            'max_connections' => 3,
+            'connect_timeout' => 10.0,
+            'wait_timeout'    => 3.0,
+            'heartbeat'       => -1,
+            'max_idle_time'   => 60,
+        ],
     ],
-],
+
 ```
 
 Then patch your .env:
@@ -49,8 +55,6 @@ CLICKHOUSE_PORT=8123
 CLICKHOUSE_DATABASE=default
 CLICKHOUSE_USERNAME=default
 CLICKHOUSE_PASSWORD=
-CLICKHOUSE_TIMEOUT_CONNECT=2
-CLICKHOUSE_TIMEOUT_QUERY=2
 # only if you use https connection
 CLICKHOUSE_HTTPS=true
 ```
@@ -60,9 +64,8 @@ CLICKHOUSE_HTTPS=true
 You can use smi2/phpClickHouse functionality directly:
 
 ```php
-/** @var \ClickHouseDB\Client $db */
-$db = Clickhouse::connection('clickhouse')->getClient();
-$statement = $db->select('SELECT * FROM summing_url_views LIMIT 2');
+$client = \Tang\HyperfClickhouse\DB::query()->getClient();
+$statement = $client->select('SELECT * FROM summing_url_views LIMIT 2');
 ```
 
 More about $db see here: https://github.com/smi2/phpClickHouse/blob/master/README.md
@@ -77,12 +80,12 @@ Or use dawnings of Eloquent ORM (will be implemented completely)
 
 namespace App\Models\Clickhouse;
 
-use Xtwoend\HyperfClickhouse\Model;
+use Tang\HyperfClickhouse\Model;
 
 class MyTable extends Model
 {
     // Not necessary. Can be obtained from class name MyTable => my_table
-    protected $table = 'my_table';
+    protected string $table = 'my_table';
 
 }
 ```
@@ -93,7 +96,7 @@ class MyTable extends Model
 <?php
 
 
-class CreateMyTable extends \Xtwoend\HyperfClickhouse\Migration
+class CreateMyTable extends \Tang\HyperfClickhouse\Migration
 {
     /**
     * Run the migrations.
@@ -130,29 +133,26 @@ class CreateMyTable extends \Xtwoend\HyperfClickhouse\Migration
 
 One row
 ```php
-$model = MyTable::create(['model_name' => 'model 1', 'some_param' => 1]);
+$model = MyTable::create(['field_one' => 'model 1', 'field_two' => 1]);
 # or
-$model = MyTable::make(['model_name' => 'model 1']);
-$model->some_param = 1;
+$model = MyTable::make(['field_one' => 'model 2']);
+$model->field_two = 2;
 $model->save();
 # or
 $model = new MyTable();
-$model->fill(['model_name' => 'model 1', 'some_param' => 1])->save();
+$model->fill(['field_one' => 'model 3', 'field_two' => 3])->save();
 ```
 Or bulk insert
-
-### Non assoc way
-    MyTable::insertBulk([['model 1', 1], ['model 2', 2]], ['model_name', 'some_param']);
-### Assoc way
-    MyTable::insertAssoc([['model_name' => 'model 1', 'some_param' => 1], ['some_param' => 2, 'model_name' => 'model 2']]);
-
+```php
+MyTable::query()->insert(['field_one' => 'model 11','field_two' => 11]);
+```
 
 4. Now check out the query builder
 ```php
-$rows = MyTable::select(['field_one', new RawColumn('sum(field_two)', 'field_two_sum')])
+$rows = MyTable::query()->select(['field_one', \Tinderbox\ClickhouseBuilder\raw('sum(field_two)', 'field_two_sum')])
     ->where('created_at', '>', '2020-09-14 12:47:29')
     ->groupBy('field_one')
-    ->getRows();
+    ->getCollect();
 ```
 
 ## Advanced usage
@@ -171,7 +171,7 @@ retries is optional, default value is 0.
 You can chunk results like in Laravel
 ```php
 // Split the result into chunks of 30 rows 
-$rows = MyTable::select(['field_one', 'field_two'])
+$rows = MyTable::query()->select(['field_one', 'field_two'])
     ->chunk(30, function ($rows) {
         foreach ($rows as $row) {
             echo $row['field_two'] . "\n";
@@ -187,7 +187,7 @@ See https://clickhouse.tech/docs/en/engines/table-engines/special/buffer/
 
 namespace App\Models\Clickhouse;
 
-use Xtwoend\HyperfClickhouse\Model;
+use Tang\HyperfClickhouse\Model;
 
 class MyTable extends Model
 {
@@ -205,7 +205,7 @@ If you also want to read from your buffer table, put its name in $table
 
 namespace App\Models\Clickhouse;
 
-use Xtwoend\HyperfClickhouse\Model;
+use Tang\HyperfClickhouse\Model;
 
 class MyTable extends Model
 {
@@ -216,12 +216,12 @@ class MyTable extends Model
 OPTIMIZE Statement
 See https://clickhouse.com/docs/ru/sql-reference/statements/optimize/
 ```php
-MyTable::optimize($final = false, $partition = null);
+MyTable::query()->optimize($final = false, $partition = null);
 ```
 ## Deletions
 See https://clickhouse.com/docs/en/sql-reference/statements/alter/delete/
 ```php
-MyTable::where('field_one', 123)->delete();
+MyTable::query()->where('field_one', 123)->delete();
 ```
 Using buffer engine and performing OPTIMIZE or ALTER TABLE DELETE
 ```php
@@ -229,7 +229,7 @@ Using buffer engine and performing OPTIMIZE or ALTER TABLE DELETE
 
 namespace App\Models\Clickhouse;
 
-use Xtwoend\HyperfClickhouse\Model;
+use Tang\HyperfClickhouse\Model;
 
 class MyTable extends Model
 {

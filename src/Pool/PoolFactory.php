@@ -1,7 +1,10 @@
 <?php
 
-namespace Xtwoend\HyperfClickhouse\Pool;
+declare(strict_types=1);
 
+namespace Tang\HyperfClickhouse\Pool;
+
+use Hyperf\Di\Container;
 use Psr\Container\ContainerInterface;
 
 class PoolFactory
@@ -9,12 +12,12 @@ class PoolFactory
     /**
      * @var ContainerInterface
      */
-    protected $container;
+    protected ContainerInterface $container;
 
     /**
      * @var DbPool[]
      */
-    protected $pools = [];
+    protected array $pools = [];
 
     public function __construct(ContainerInterface $container)
     {
@@ -26,7 +29,7 @@ class PoolFactory
         if (isset($this->pools[$name])) {
             return $this->pools[$name];
         }
-        
+
         if ($this->container instanceof Container) {
             $pool = $this->container->make(DbPool::class, ['name' => $name]);
         } else {

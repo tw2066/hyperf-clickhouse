@@ -5,28 +5,18 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Xtwoend\\HyperfClickhouse\\": "src/"
+            "Tang\\HyperfClickhouse\\": "src/"
         }
     },
-    "authors": [
-        {
-            "name": "tw2066",
-            "email": "tw2066@163.com"
-        }
-    ],
     "require": {
-        "the-tinderbox/clickhouse-builder": "^6.1"
     },
     "config": {
         "optimize-autoloader": true,
         "sort-packages": true
     },
     "extra": {
-        "branch-alias": {
-            "dev-master": "0.1.x-dev"
-        },
         "hyperf": {
-            "config": "Xtwoend\\HyperfClickhouse\\ConfigProvider"
+            "config": "Tang\\HyperfClickhouse\\ConfigProvider"
         }
     }
 }

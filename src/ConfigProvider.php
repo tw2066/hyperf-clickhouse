@@ -1,8 +1,10 @@
 <?php
 
-namespace Xtwoend\HyperfClickhouse;
+declare(strict_types=1);
 
-use Xtwoend\HyperfClickhouse\Pool\PoolFactory;
+namespace Tang\HyperfClickhouse;
+
+use Tang\HyperfClickhouse\Pool\PoolFactory;
 
 class ConfigProvider
 {
@@ -11,8 +13,8 @@ class ConfigProvider
         return [
             'dependencies' => [
                 PoolFactory::class => PoolFactory::class,
-                ConnectionResolver::class => ConnectionResolver::class
-            ]
+                ConnectionResolver::class => ConnectionResolver::class,
+            ],
         ];
     }
 }

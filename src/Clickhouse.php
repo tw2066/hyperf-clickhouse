@@ -1,47 +1,16 @@
 <?php
 
-namespace Xtwoend\HyperfClickhouse;
+declare(strict_types=1);
 
-use Hyperf\Database\ConnectionInterface;
-use Hyperf\Database\ConnectionResolverInterface;
-use Hyperf\Utils\ApplicationContext;
-use Psr\Container\ContainerInterface;
+namespace Tang\HyperfClickhouse;
 
-/**
- * Clickhouse 
- */
+use Hyperf\Context\ApplicationContext;
+
 class Clickhouse
 {
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    public function __construct(ContainerInterface $container)
+    public static function connection($pool = 'default')
     {
-        $this->container = $container;
-    }
-
-    public function __call($name, $arguments)
-    {
-        if ($name === 'connection') {
-            return $this->__connection(...$arguments);
-        }
-        return $this->__connection()->{$name}(...$arguments);
-    }
-
-    public static function __callStatic($name, $arguments)
-    {
-        $db = ApplicationContext::getContainer()->get(Clickhouse::class);
-        if ($name === 'connection') {
-            return $db->__connection(...$arguments);
-        }
-        return $db->__connection()->{$name}(...$arguments);
-    }
-
-    private function __connection($pool = 'default'): ConnectionInterface
-    {
-        $resolver = $this->container->get(ConnectionResolver::class);
+        $resolver = ApplicationContext::getContainer()->get(ConnectionResolver::class);
         return $resolver->connection($pool);
     }
 }

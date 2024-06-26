@@ -1,32 +1,24 @@
 <?php
 
-namespace Xtwoend\HyperfClickhouse;
+declare(strict_types=1);
 
-use Hyperf\Utils\Context;
-use Hyperf\Utils\Coroutine;
+namespace Tang\HyperfClickhouse;
+
+use Hyperf\Context\Context;
+use Hyperf\Contract\ConnectionInterface;
+use Hyperf\Coroutine\Coroutine;
 use Psr\Container\ContainerInterface;
-use Hyperf\Database\ConnectionInterface;
-use Xtwoend\HyperfClickhouse\Pool\PoolFactory;
-use Hyperf\Database\ConnectionResolverInterface;
+use Tang\HyperfClickhouse\Pool\PoolFactory;
 
-class ConnectionResolver implements ConnectionResolverInterface
+use function Hyperf\Coroutine\defer;
+
+class ConnectionResolver
 {
-    /**
-     * The default connection name.
-     *
-     * @var string
-     */
-    protected $default = 'default';
+    protected string $default = 'clickhouse';
 
-    /**
-     * @var PoolFactory
-     */
-    protected $factory;
+    protected PoolFactory $factory;
 
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
+    protected ContainerInterface $container;
 
     public function __construct(ContainerInterface $container)
     {
@@ -36,16 +28,13 @@ class ConnectionResolver implements ConnectionResolverInterface
 
     /**
      * Get a database connection instance.
-     *
-     * @param string $name
-     * @return ConnectionInterface
      */
-    public function connection($name = null)
+    public function connection(?string $name = null): ClickhouseConnection
     {
         if (is_null($name)) {
             $name = $this->getDefaultConnection();
         }
-        
+
         $connection = null;
         $id = $this->getContextKey($name);
         if (Context::has($id)) {
@@ -55,7 +44,7 @@ class ConnectionResolver implements ConnectionResolverInterface
         if (! $connection instanceof ConnectionInterface) {
             $pool = $this->factory->getPool($name);
             $connection = $pool->get();
-            
+
             try {
                 // PDO is initialized as an anonymous function, so there is no IO exception,
                 // but if other exceptions are thrown, the connection will not return to the connection pool properly.
@@ -70,35 +59,29 @@ class ConnectionResolver implements ConnectionResolverInterface
                 }
             }
         }
-
         return $connection;
     }
 
     /**
      * Get the default connection name.
-     *
-     * @return string
      */
-    public function getDefaultConnection()
+    public function getDefaultConnection(): string
     {
         return $this->default;
     }
 
     /**
      * Set the default connection name.
-     *
-     * @param string $name
      */
-    public function setDefaultConnection($name)
+    public function setDefaultConnection(string $name): void
     {
         $this->default = $name;
     }
 
     /**
      * The key to identify the connection object in coroutine context.
-     * @param mixed $name
      */
-    private function getContextKey($name): string
+    private function getContextKey(string $name): string
     {
         return sprintf('database.connection.%s', $name);
     }

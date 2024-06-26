@@ -1,20 +1,18 @@
 <?php
 
-namespace Xtwoend\HyperfClickhouse;
+declare(strict_types=1);
 
+namespace Tang\HyperfClickhouse;
+
+use ClickHouseDB\Statement;
 use Hyperf\Database\Migrations\Migration as BaseMigration;
 
 class Migration extends BaseMigration
 {
-    /**
-     *
-     * @param string $sql
-     * @return \ClickHouseDB\Statement
-     */
-    protected static function write(string $sql)
+
+    protected static function write(string $sql): Statement
     {
-        /** @var \ClickHouseDB\Client $client */
-        $client = Clickhouse::connection('clickhouse')->getClient();
-        return $client->writeOne($sql);
+        $client = DB::query()->getClient();
+        return $client->write($sql);
     }
 }

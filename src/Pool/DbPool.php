@@ -1,19 +1,22 @@
 <?php
 
-namespace Xtwoend\HyperfClickhouse\Pool;
+declare(strict_types=1);
 
-use Hyperf\Pool\Pool;
-use Hyperf\Utils\Arr;
+namespace Tang\HyperfClickhouse\Pool;
+
+use Hyperf\Collection\Arr;
 use Hyperf\Contract\ConfigInterface;
-use Psr\Container\ContainerInterface;
 use Hyperf\Contract\ConnectionInterface;
-use Xtwoend\HyperfClickhouse\Connection;
+use Hyperf\Pool\Pool;
+use InvalidArgumentException;
+use Psr\Container\ContainerInterface;
+use Tang\HyperfClickhouse\ClickhouseConnection;
 
 class DbPool extends Pool
 {
-    protected $name;
+    protected string $name;
 
-    protected $config;
+    protected mixed $config;
 
     public function __construct(ContainerInterface $container, string $name)
     {
@@ -21,11 +24,11 @@ class DbPool extends Pool
         $config = $container->get(ConfigInterface::class);
         $key = sprintf('databases.%s', $this->name);
         if (! $config->has($key)) {
-            throw new \InvalidArgumentException(sprintf('config[%s] is not exist!', $key));
+            throw new InvalidArgumentException(sprintf('config[%s] is not exist!', $key));
         }
         // Rewrite the `name` of the configuration item to ensure that the model query builder gets the right connection.
         $config->set("{$key}.name", $name);
-        
+
         $this->config = $config->get($key);
         $options = Arr::get($this->config, 'pool', []);
 
@@ -39,6 +42,6 @@ class DbPool extends Pool
 
     protected function createConnection(): ConnectionInterface
     {
-        return new Connection($this->container, $this, $this->config);
+        return new ClickhouseConnection($this->container, $this, $this->config);
     }
 }
