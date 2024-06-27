@@ -10,7 +10,7 @@ More: https://github.com/smi2/phpClickHouse#features
 
 ## Prerequisites
 - PHP 8.1
-- Hyperf PHP
+- Hyperf = 3.1
 - Clickhouse server
 
 ## Installation
@@ -154,18 +154,6 @@ $rows = MyTable::query()->select(['field_one', \Tinderbox\ClickhouseBuilder\raw(
     ->groupBy('field_one')
     ->getCollect();
 ```
-
-## Advanced usage
-Retries
-You may enable ability to retry requests while received not 200 response, maybe due network connectivity problems.
-
-Patch your .env:
-
-    CLICKHOUSE_RETRIES=2
-    
-retries is optional, default value is 0.
-0 mean only one attempt.
-1 mean one attempt + 1 retry while error (total 2 attempts).
 
 ## Working with huge rows
 You can chunk results like in Laravel

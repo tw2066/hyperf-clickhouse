@@ -89,7 +89,6 @@ class Model
      */
     public static function query(): Builder
     {
-        // @phpstan-ignore-next-line
         return (new static())->newQuery();
     }
 
@@ -113,7 +112,6 @@ class Model
      */
     public static function make(array $attributes = []): static
     {
-        // @phpstan-ignore-next-line
         $model = new static();
         $model->fill($attributes);
         return $model;
@@ -132,7 +130,6 @@ class Model
 
     /**
      * Fill the model with an array of attributes.
-     * @return $this
      */
     public function fill(array $attributes)
     {
@@ -180,7 +177,6 @@ class Model
      */
     public static function optimize($final = true, $partition = null): Statement
     {
-        // @phpstan-ignore-next-line
         $sql = 'OPTIMIZE TABLE ' . (new static())->getTableSources();
         if ($partition) {
             $sql .= " PARTITION {$partition}";

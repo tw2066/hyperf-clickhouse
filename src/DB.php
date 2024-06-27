@@ -15,7 +15,7 @@ class DB extends Builder
 
     public function getClient(): Client
     {
-        return Parent::getClient();
+        return parent::getClient();
     }
 
 }
