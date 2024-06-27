@@ -8,6 +8,7 @@ use ClickHouseDB\Statement;
 use Exception;
 use Hyperf\Database\Model\Concerns\HasAttributes;
 use Hyperf\Stringable\Str;
+use function Hyperf\Support\class_basename;
 
 class Model
 {
@@ -88,6 +89,7 @@ class Model
      */
     public static function query(): Builder
     {
+        // @phpstan-ignore-next-line
         return (new static())->newQuery();
     }
 
@@ -111,6 +113,7 @@ class Model
      */
     public static function make(array $attributes = []): static
     {
+        // @phpstan-ignore-next-line
         $model = new static();
         $model->fill($attributes);
         return $model;
@@ -177,6 +180,7 @@ class Model
      */
     public static function optimize($final = true, $partition = null): Statement
     {
+        // @phpstan-ignore-next-line
         $sql = 'OPTIMIZE TABLE ' . (new static())->getTableSources();
         if ($partition) {
             $sql .= " PARTITION {$partition}";

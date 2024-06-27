@@ -7,8 +7,6 @@ namespace Tang\HyperfClickhouse;
 use ClickHouseDB\Client;
 use Hyperf\Contract\ConnectionInterface;
 use Hyperf\Contract\PoolInterface;
-use Hyperf\Contract\StdoutLoggerInterface;
-use Hyperf\DbConnection\Traits\DbConnection;
 use Hyperf\Pool\Connection as BaseConnection;
 use Hyperf\Pool\Exception\ConnectionException;
 use Psr\Container\ContainerInterface;
@@ -16,8 +14,6 @@ use Tang\HyperfClickhouse\Pool\DbPool;
 
 class ClickhouseConnection extends BaseConnection implements ConnectionInterface
 {
-    use DbConnection;
-
     /**
      * @var DbPool
      */
@@ -30,15 +26,12 @@ class ClickhouseConnection extends BaseConnection implements ConnectionInterface
 
     protected array $config;
 
-    protected StdoutLoggerInterface $logger;
-
     protected bool $transaction = false;
 
     public function __construct(ContainerInterface $container, DbPool $pool, array $config)
     {
         parent::__construct($container, $pool);
         $this->config = $config;
-        $this->logger = $container->get(StdoutLoggerInterface::class);
 
         $this->reconnect();
     }
@@ -67,8 +60,6 @@ class ClickhouseConnection extends BaseConnection implements ConnectionInterface
 
         $this->connection = new Client($this->config);
         $this->connection->database($this->config['database']);
-
-        $this->lastUseTime = microtime(true);
 
         return true;
     }

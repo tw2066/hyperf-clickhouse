@@ -15,6 +15,7 @@ use RuntimeException;
 use Tinderbox\ClickhouseBuilder\Query\Builder as BaseBuilder;
 use Tinderbox\ClickhouseBuilder\Query\Grammar;
 
+/** @phpstan-consistent-constructor */
 class Builder extends BaseBuilder
 {
     /**
