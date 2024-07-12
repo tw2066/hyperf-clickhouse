@@ -60,6 +60,7 @@ class ClickhouseConnection extends BaseConnection implements ConnectionInterface
 
         $this->connection = new Client($this->config);
         $this->connection->database($this->config['database']);
+        $this->lastUseTime = microtime(true);
 
         return true;
     }
